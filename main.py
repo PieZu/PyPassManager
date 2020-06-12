@@ -4,6 +4,7 @@ import os
 
 ### set constants ###
 SALT = b"PyPassSalt73871" # unique salt to counteract lookup tables
+PASSWORD_TYPES = ("hex", "Base64", "Alphbt", "Deciml")
 
 HELP = """For a simple walkthrough to set up easily, type 'tutorial'
 For more information on a specific command, type "help <command-name>"
@@ -16,6 +17,7 @@ new		Creates a new password
 import		Import settings from a file
 masterpass	Change to a different master password
 tutorial 	Display setup walkthrough"""
+
 TUTORIAL = """Welcome to PyPassManager!
 This is a simple tool to help safely manage a collection of secure passwords.
 Security experts recommended that you use a different password for each account/site you use, so that if one is compromised, your other accounts are safe.
@@ -76,16 +78,41 @@ class Password:
       name = "Pass"+str(iteration+1)
 
     # store settings
-    self.type = type
-    self.crop_length = crop
+    self.change_type(type)
+    self.change_crop(crop)
+    self.change_name(name)
     self.iteration = iteration
-    self.name = name
 
     # generate initial state
     self.refresh()
     
     #return self
   
+  def change_name(self, name):
+    if find_password(name) == "Not Found":
+      self.name = name
+    else:
+      raise UserWarning("Duplicate name:", name)
+  
+  def change_crop(self, crop_length):
+    if crop_length != False:
+        try: 
+          crop_length = Number(crop_length)
+          if crop_length < 0:
+            raise UserWarning("Crop length must be greater than 0, not ", crop_length)
+          else:
+            self.crop_length = crop_length
+        except ValueError:
+          raise UserWarning("Crop length must be a number, unable to convert ", crop_length)
+    else: 
+      self.crop_length = False
+
+  def change_type(self, type):
+    if type not in PASSWORD_TYPES:
+      raise UserWarning("Type", type, "not recognised. Valid types:", PASSWORD_TYPES)
+    else:
+      self.type = type
+
   def refresh(self):
     # iterate
     global max_iterations
@@ -108,6 +135,14 @@ class Password:
   
   def as_hex(self):
     return self.hash.hex()
+
+  def delete(self):
+    global max_iterations
+    if max_iterations == self.iteration:
+      max_iterations -= 1
+    self.type = None
+    self.name = None
+    self.hash = None
 
 ### FUNCTIONS ###
 def display():
@@ -138,12 +173,11 @@ def get_input():
     if len(args) != 2:
       print("please provide 2 arguments")
     else:
-      password = list(filter(lambda x: x.name == args[0], passwords))
-      if len(password) == 0:
+      password = find_password(args[0])
+      if password == "Not Found":
         print("no password found with name:", args[0])
       else:
-        password = password[0]
-        if len(list(filter(lambda x: x.name == args[1], passwords)))>0:
+        if find_password(args[1]) != "Not Found":
           print("password already exists with name:", args[1])
         else:
           password.name = args[1]
@@ -154,17 +188,45 @@ def get_input():
     if len(args) != 1:
       print("please provide 1 argument")
     else:
-      password = list(filter(lambda x: x.name == args[0], passwords))
-      if len(password) == 0:
+      password = find_password(args[0])
+      if password == "Not Found":
         print("no password found with name:", args[0])
       else:
-        password[0].refresh()
+        password.refresh()
         display()
     get_input()
 
+  elif command == "new":
+    if len(args) > 3: 
+      print("please provide fewer than 4 arguments")
+      print("names cannot contain spaces")
+      get_input()
+    else:
+      new_pass = Password()
+      try:
+        if len(args) > 0:
+          new_pass.change_name(args[0])
+          if len(args) > 1:
+            new_pass.change_type(args[1])
+            if len(args) > 2:
+              new_pass.change_type(args[2])
+      except UserWarning as e:
+        print("Error creating password:")
+        print(e)
+        new_pass.delete()
+        return get_input()
+      passwords.append(new_pass)
+      display()
   else:
     print("Unknown command:", command)
     get_input()
+
+def find_password(name):
+  result = list(filter(lambda x: x.name == name, passwords))
+  if len(result) == 0:
+    return "Not Found"
+  else:
+    return result[0]
 
 ### PROCEDURAL CODE ###
 if __name__ == "__main__":
