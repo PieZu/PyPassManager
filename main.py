@@ -88,19 +88,12 @@ class Password:
   
   def refresh(self):
     # iterate
-    iterations = self.iteration
-    iterations = iterations+1
-
-    # keep max iterations up to date
     global max_iterations
-    if iterations > max_iterations:
-      max_iterations = iterations
+    max_iterations += 1
+    self.iteration = max_iterations
 
     # generate the passwords hash / source  
-    self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, SALT, iterations)
-
-    # store updated iteration
-    self.iteration = iterations
+    self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, SALT, self.iteration)
     
   def __repr__(self):
     # generate password plaintext with current settings
@@ -157,6 +150,17 @@ def get_input():
           return display()
     get_input()
 
+  elif command == "refresh":
+    if len(args) != 1:
+      print("please provide 1 argument")
+    else:
+      password = list(filter(lambda x: x.name == args[0], passwords))
+      if len(password) == 0:
+        print("no password found with name:", args[0])
+      else:
+        password[0].refresh()
+        display()
+    get_input()
 
   else:
     print("Unknown command:", command)
