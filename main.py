@@ -1,85 +1,11 @@
+### import libraries ###
 import hashlib
 import os 
 
-# get master password
-masterpass = input("Enter your master password:\n")
-os.system('clear') # wipe the console
-# convert into bytes so that it can be hashed
-masterpass = str.encode(masterpass)
+### set constants ###
+SALT = b"PyPassSalt73871" # unique salt to counteract lookup tables
 
-# turn plaintext password to hash, unreversable
-salt = b"PyPassSalt73871" # unique salt to counteract lookup tables
-masterpass = hashlib.pbkdf2_hmac('sha512', masterpass, salt, 10000)
-
-# store how many refreshes used, to make sure the same password isnt used twice
-max_iterations = 0
-
-class Password:
-  def __init__(self, iteration="max", type="hex", crop=False, name="__default"):
-
-    # by default the password will start off with the next iteration after the max (.refresh will bring it up by 1). For some reason setting this directly in the parameter definition doesn't work when you change max_iterations dynamically. Weird.
-    if iteration == "max": 
-      iteration = max_iterations
-    if name == "__default": # same thing with name wont work directly in the parameter
-      name = "Pass"+str(iteration+1)
-
-    # store settings
-    self.type = type
-    self.crop_length = crop
-    self.iteration = iteration
-    self.name = name
-
-    # generate initial state
-    self.refresh()
-    
-    #return self
-  
-  def refresh(self):
-    # iterate
-    iterations = self.iteration
-    iterations = iterations+1
-
-    # keep max iterations up to date
-    global max_iterations
-    if iterations > max_iterations:
-      max_iterations = iterations
-
-    # generate the passwords hash / source  
-    self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, salt, iterations)
-
-    # store updated iteration
-    self.iteration = iterations
-    
-  def __repr__(self):
-    # generate password plaintext with current settings
-    if self.type == "hex":
-      result = self.as_hex()
-
-    # apply cropping if provided
-    if self.crop_length:
-      result = result[:self.crop_length]
-    
-    return result
-  
-  def as_hex(self):
-    return self.hash.hex()
-
-# generate default passwords
-passwords = []
-for i in range(3):
-  passwords.append(Password())
-
-def display():
-  print(" --- PyPassManager --- ")
-  for password in passwords:
-    print(f"[{password.iteration}] {password.name}: {password}")
-  print("\ntype help for a list of commands")
-  get_input()
-
-def get_input():
-  command = input("\n> ")
-  if command == "help":
-    print("""For a simple walkthrough to set up easily, type 'tutorial'
+HELP = """For a simple walkthrough to set up easily, type 'tutorial'
 For more information on a specific command, type "help <command-name>"
 help		Display help on commands
 refresh		Refreshes a password to a new secure hash
@@ -89,10 +15,8 @@ settings	Changes the hash generation settings on a password
 new		Creates a new password
 import		Import settings from a file
 masterpass	Change to a different master password
-tutorial 	Display setup walkthrough""")
-    get_input()
-  elif command == "tutorial":
-    print("""Welcome to PyPassManager!
+tutorial 	Display setup walkthrough"""
+TUTORIAL = """Welcome to PyPassManager!
 This is a simple tool to help safely manage a collection of secure passwords.
 Security experts recommended that you use a different password for each account/site you use, so that if one is compromised, your other accounts are safe.
 However, remembering even a single long random password is extremely challenging for most people
@@ -138,11 +62,126 @@ These setttings are only properly openable using the same master password. It's 
 The file doesn't directlty store any generated passwords, those are generated on the fly for added security, but it stores custom names and custom passwords, so it's recommended you keep the file to yourself.
 If for whatever reason you forget your master password or want to change to a new one, you can use the masterpass command, which will automatically convert everything, note however that this will convert all your generated passwords into custom passwords.
 
-Press any key to continue...""")
+Press Enter to continue..."""
+
+
+### CLASSES ###
+class Password:
+  def __init__(self, iteration="max", type="hex", crop=False, name="__default"):
+
+    # by default the password will start off with the next iteration after the max (.refresh will bring it up by 1). For some reason setting this directly in the parameter definition doesn't work when you change max_iterations dynamically. Weird.
+    if iteration == "max": 
+      iteration = max_iterations
+    if name == "__default": # same thing with name wont work directly in the parameter
+      name = "Pass"+str(iteration+1)
+
+    # store settings
+    self.type = type
+    self.crop_length = crop
+    self.iteration = iteration
+    self.name = name
+
+    # generate initial state
+    self.refresh()
+    
+    #return self
+  
+  def refresh(self):
+    # iterate
+    iterations = self.iteration
+    iterations = iterations+1
+
+    # keep max iterations up to date
+    global max_iterations
+    if iterations > max_iterations:
+      max_iterations = iterations
+
+    # generate the passwords hash / source  
+    self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, SALT, iterations)
+
+    # store updated iteration
+    self.iteration = iterations
+    
+  def __repr__(self):
+    # generate password plaintext with current settings
+    if self.type == "hex":
+      result = self.as_hex()
+
+    # apply cropping if provided
+    if self.crop_length:
+      result = result[:self.crop_length]
+    
+    return result
+  
+  def as_hex(self):
+    return self.hash.hex()
+
+### FUNCTIONS ###
+def display():
+  print(" --- PyPassManager --- ")
+  for password in passwords:
+    print(f"[{password.iteration}] {password.name}: {password}")
+  print("\ntype help for a list of commands")
+  get_input()
+
+def get_input():
+  args = input("\n> ").split(" ")
+  #if args: 
+  #  args = args.sp
+  #  print(args)
+  command = args.pop(0)
+  #else: return get_input()
+
+  if command == "help":
+    print(HELP)
+    get_input()
+  
+  elif command == "tutorial":
+    print(TUTORIAL)
     input("")
     display()
-  else:
-    print("Unknown command: ", command)
+
+  elif command == "rename":
+    if len(args) != 2:
+      print("please provide 2 arguments")
+    else:
+      password = list(filter(lambda x: x.name == args[0], passwords))
+      if len(password) == 0:
+        print("no password found with name:", args[0])
+      else:
+        password = password[0]
+        if len(list(filter(lambda x: x.name == args[1], passwords)))>0:
+          print("password already exists with name:", args[1])
+        else:
+          password.name = args[1]
+          return display()
     get_input()
 
-display()
+
+  else:
+    print("Unknown command:", command)
+    get_input()
+
+### PROCEDURAL CODE ###
+if __name__ == "__main__":
+  # get master password
+  masterpass = input("Enter your master password:\n")
+
+  # convert into bytes so that it can be hashed
+  masterpass = str.encode(masterpass)
+
+  # turn plaintext password to hash, unreversable
+  masterpass = hashlib.pbkdf2_hmac('sha512', masterpass, SALT, 10000)
+
+  os.system('clear') # wipe the console
+  print("LOADING with hash", masterpass.hex())
+
+  # store how many refreshes used, to make sure the same password isnt used twice
+  max_iterations = 0
+
+  # generate default passwords
+  passwords = []
+  for i in range(3):
+    passwords.append(Password())
+
+  display()
