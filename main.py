@@ -6,6 +6,8 @@ import base64
 ### set constants ###
 SALT = b"PyPassSalt73871" # unique salt to counteract lookup tables
 PASSWORD_TYPES = ("hex", "Base64", "Alphbt", "Deciml")
+DEFAULT_TYPE = "Deciml"
+
 
 HELP = """For a simple walkthrough to set up easily, type 'tutorial'
 For more information on a specific command, type "help <command-name>"
@@ -70,7 +72,7 @@ Press Enter to continue..."""
 
 ### CLASSES ###
 class Password:
-  def __init__(self, iteration="max", type="Base64", crop=False, name="__default"):
+  def __init__(self, iteration="max", type=DEFAULT_TYPE, crop=False, name="__default"):
 
     # by default the password will start off with the next iteration after the max (.refresh will bring it up by 1). For some reason setting this directly in the parameter definition doesn't work when you change max_iterations dynamically. Weird.
     if iteration == "max": 
@@ -127,8 +129,10 @@ class Password:
     # generate password plaintext with current settings
     if self.type == "hex":
       result = self.as_hex()
-    if self.type == "Base64":
+    elif self.type == "Base64":
       result = self.as_base64()
+    elif self.type == "Deciml":
+      result = self.as_decimal()
 
     # apply cropping if provided
     if self.crop_length:
@@ -143,7 +147,12 @@ class Password:
     return bytes.fromhex(self.as_hex())
 
   def as_base64(self):
-    return base64.b64encode(self.as_bytearray()).decode()
+    number = base64.b64encode(self.as_bytearray())
+    return number.decode()
+
+  def as_decimal(self):
+    number = int.from_bytes(self.as_bytearray(), 'big')
+    return str(number)
 
   def delete(self):
     global max_iterations
