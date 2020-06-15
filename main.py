@@ -1,6 +1,7 @@
 ### import libraries ###
 import hashlib
 import os 
+import base64
 
 ### set constants ###
 SALT = b"PyPassSalt73871" # unique salt to counteract lookup tables
@@ -69,7 +70,7 @@ Press Enter to continue..."""
 
 ### CLASSES ###
 class Password:
-  def __init__(self, iteration="max", type="hex", crop=False, name="__default"):
+  def __init__(self, iteration="max", type="Base64", crop=False, name="__default"):
 
     # by default the password will start off with the next iteration after the max (.refresh will bring it up by 1). For some reason setting this directly in the parameter definition doesn't work when you change max_iterations dynamically. Weird.
     if iteration == "max": 
@@ -97,13 +98,13 @@ class Password:
   def change_crop(self, crop_length):
     if crop_length != False:
         try: 
-          crop_length = Number(crop_length)
+          crop_length = int(crop_length)
           if crop_length < 0:
             raise UserWarning("Crop length must be greater than 0, not ", crop_length)
           else:
             self.crop_length = crop_length
         except ValueError:
-          raise UserWarning("Crop length must be a number, unable to convert ", crop_length)
+          raise UserWarning("Crop length must be a number or False, unable to convert ", crop_length)
     else: 
       self.crop_length = False
 
@@ -126,6 +127,8 @@ class Password:
     # generate password plaintext with current settings
     if self.type == "hex":
       result = self.as_hex()
+    if self.type == "Base64":
+      result = self.as_base64()
 
     # apply cropping if provided
     if self.crop_length:
@@ -135,6 +138,12 @@ class Password:
   
   def as_hex(self):
     return self.hash.hex()
+  
+  def as_bytearray(self):
+    return bytes.fromhex(self.as_hex())
+
+  def as_base64(self):
+    return base64.b64encode(self.as_bytearray()).decode()
 
   def delete(self):
     global max_iterations
