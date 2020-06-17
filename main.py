@@ -5,8 +5,8 @@ import base64
 
 ### set constants ###
 SALT = b"PyPassSalt73871" # unique salt to counteract lookup tables
-PASSWORD_TYPES = ("hex", "Base64", "Alphbt", "Deciml")
-DEFAULT_TYPE = "Deciml"
+PASSWORD_TYPES = {"hex": 0, "Base64": 1, "Deciml": 3}
+DEFAULT_TYPE = "hex"
 
 
 HELP = """For a simple walkthrough to set up easily, type 'tutorial'
@@ -122,23 +122,30 @@ class Password:
     max_iterations += 1
     self.iteration = max_iterations
 
+    self.custom = False
+
     # generate the passwords hash / source  
     self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, SALT, self.iteration)
     
   def __repr__(self):
     # generate password plaintext with current settings
-    if self.type == "hex":
-      result = self.as_hex()
-    elif self.type == "Base64":
-      result = self.as_base64()
-    elif self.type == "Deciml":
-      result = self.as_decimal()
-
-    # apply cropping if provided
-    if self.crop_length:
-      result = result[:self.crop_length]
-    
-    return result
+    if self.custom:
+      return self.custom
+    else:
+      if self.type == "hex":
+        result = self.as_hex()
+      elif self.type == "Base64":
+        result = self.as_base64()
+      elif self.type == "Deciml":
+        result = self.as_decimal()
+      elif self.type == "Alphbt":
+        result = self.as_letters()
+      
+      # apply cropping if provided
+      if self.crop_length:
+        result = result[:self.crop_length]
+      
+      return result
   
   def as_hex(self):
     return self.hash.hex()
@@ -166,7 +173,7 @@ class Password:
 def display():
   print(" --- PyPassManager --- ")
   for password in passwords:
-    print(f"[{password.iteration}] {password.name}: {password}")
+    print(f"[{'!' if password.custom else password.iteration}] {password.name}: {password}")
   print("\ntype help for a list of commands")
   get_input()
 
@@ -235,6 +242,36 @@ def get_input():
         return get_input()
       passwords.append(new_pass)
       display()
+  
+  elif command == "custom":
+    find_password(args[0])
+    password = find_password(args[0])
+    if password == "Not Found":
+      print("no password found with name:", args[0])
+      get_input()
+    else:
+      password.custom = args[1]
+      display()
+
+  elif command == "settings":
+    if not (len(args) == 2 or len(args) == 3): 
+      print("please provide 2 or 3 arguments")
+      get_input()
+    else:
+      password = find_password(args[0])
+      if password == "Not Found":
+        print("Couldn't find password: ", args[0])
+        return get_input()
+      try:
+        password.change_type(args[1])
+        if len(args) == 3:
+          password.change_crop(args[2])
+      except UserWarning as e:
+        print("Error changing settings:")
+        print(e)
+        return get_input()
+      display()
+  
   else:
     print("Unknown command:", command)
     get_input()
