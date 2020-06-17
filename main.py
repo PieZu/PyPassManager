@@ -72,8 +72,13 @@ Press Enter to continue..."""
 
 ### CLASSES ###
 class Password:
-  def __init__(self, iteration="max", type=DEFAULT_TYPE, crop=False, name="__default"):
+  def __init__(self, iteration="max", type=DEFAULT_TYPE, crop=False, name="__default", file=False):
 
+    if file:
+      fil
+    else:
+
+    
     # by default the password will start off with the next iteration after the max (.refresh will bring it up by 1). For some reason setting this directly in the parameter definition doesn't work when you change max_iterations dynamically. Weird.
     if iteration == "max": 
       iteration = max_iterations
@@ -138,8 +143,6 @@ class Password:
         result = self.as_base64()
       elif self.type == "Deciml":
         result = self.as_decimal()
-      elif self.type == "Alphbt":
-        result = self.as_letters()
       
       # apply cropping if provided
       if self.crop_length:
@@ -169,6 +172,8 @@ class Password:
     self.name = None
     self.hash = None
 
+  def pickle(self):
+    return 
 ### FUNCTIONS ###
 def display():
   print(" --- PyPassManager --- ")
