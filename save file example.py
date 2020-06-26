@@ -10,11 +10,20 @@ print("Checking for file", filename)
 
 if isfile(filename):
   print("file exists")
+
+  print("reading")
+  with open(filename, mode='rb') as file:
+    fileContent = file.read()
+    print("Data read:", fileContent)
+
 else:
-  print("cant find file")
-  data = bytes((122, 139, 10))
+  print("file not found")
+  
+  data = input("Data to save: ").encode("utf-8")
+
   print('writing')
-  f = open(filename, 'wb')
-  f.write(data)
-  f.close()
+
+  with open(filename, mode='wb') as file:
+    file.write(data)
+  
   print('written')
