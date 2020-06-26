@@ -5,7 +5,7 @@ import base64
 
 ### set constants ###
 SALT = b"PyPassSalt73871" # unique salt to counteract lookup tables
-PASSWORD_TYPES = {"hex": 0, "Base64": 1, "Deciml": 3}
+PASSWORD_TYPES = ["hex", "Base64", "Deciml"]
 DEFAULT_TYPE = "hex"
 
 
@@ -72,12 +72,7 @@ Press Enter to continue..."""
 
 ### CLASSES ###
 class Password:
-  def __init__(self, iteration="max", type=DEFAULT_TYPE, crop=False, name="__default", file=False):
-
-    if file:
-      fil
-    else:
-
+  def __init__(self, iteration="max", type=DEFAULT_TYPE, crop=False, name="__default"):
     
     # by default the password will start off with the next iteration after the max (.refresh will bring it up by 1). For some reason setting this directly in the parameter definition doesn't work when you change max_iterations dynamically. Weird.
     if iteration == "max": 
