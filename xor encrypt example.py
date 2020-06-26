@@ -1,7 +1,4 @@
-import pickle
-import gzip
 import hashlib
-
 
 def xor(plaintext, key):
   cyphertext = bytearray()
