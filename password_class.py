@@ -1,5 +1,6 @@
 import hashlib
 import base64
+import pickle
 
 from constants import SALT
 
@@ -121,6 +122,7 @@ class Password:
     self.type = None
     self.name = None
     self.hash = None
-
-  def pickle(self):
-    return 
+  
+  def __getstate__(self):
+    # don't pickle the hash representation - even if the save file encryption is broken it wont reveal the passwords (unless they're custom) 
+    return [self.iteration, self.type, self.name, self.custom]

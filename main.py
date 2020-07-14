@@ -1,13 +1,16 @@
 ### import libraries ###
 import os
 import hashlib
-
+import pickle
 
 ### set constants ###
 from constants import *
 
 ### FUNCTIONS ###
 def display():
+  # display is called everytime the settings are changed. so first, we save
+  save_settings()
+
   print(" --- PyPassManager --- ")
   for password in passwords:
     print(f"[{'!' if password.custom else password.iteration}] {password.name}: {password}")
@@ -108,11 +111,17 @@ def get_input():
         print(e)
         return get_input()
       display()
-  
+
   else:
     print("Unknown command:", command)
     get_input()
 
+def save_settings():
+  filename = f"{masterpass.hex()[:3]}_passwords.pypass"
+
+  with open(filename, mode='wb') as file:
+    pickle.dump(passwords, file)
+  
 ### PROCEDURAL CODE ###
 if __name__ == "__main__":
   # get master password
