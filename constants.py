@@ -7,7 +7,7 @@ refresh		Refreshes a password to a new secure hash
 rename		Changes the name attached to a password
 custom		Sets a password to a custom string
 settings	Changes the hash generation settings on a password
-suffix    Appends custom string at end of password
+suffix      Appends custom string at end of password
 new	    	Creates a new password
 import		Import settings from a file
 masterpass	Change to a different master password

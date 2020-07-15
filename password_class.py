@@ -14,7 +14,9 @@ masterpass = ""
 max_iterations = 0
 passwords = []
 
+### FUNCTIONS ###
 def import_passwords(list):
+  global passwords
   passwords = list
 
 def set_masterpass(hash):
@@ -57,15 +59,12 @@ class Password:
       raise UserWarning("Duplicate name:", name)
   
   def change_crop(self, crop_length):
-    if crop_length != False:
+    if crop_length != False: # 0 == False
         try: 
           crop_length = int(crop_length)
-          if crop_length < 0:
-            raise UserWarning("Crop length must be greater than 0, not ", crop_length)
-          else:
-            self.crop_length = crop_length
+          self.crop_length = crop_length
         except ValueError:
-          raise UserWarning("Crop length must be a number or False, unable to convert ", crop_length)
+          raise UserWarning("Crop length must be an integer or 0, unable to convert ", crop_length)
     else: 
       self.crop_length = False
 
@@ -135,3 +134,7 @@ class Password:
   def __setstate__(self, state):
     (self.iteration, self.type, self.name, self.custom, self.crop_length, self.suffix) = state
     self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, SALT, self.iteration)
+
+    global max_iterations
+    if self.iteration > max_iterations:
+      max_iterations = self.iteration

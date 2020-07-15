@@ -5,6 +5,12 @@ import pickle
 
 ### set constants ###
 from constants import *
+### CLASSES ###
+class Command:
+  def __init__(self, name, code, help):
+    self.name = name
+    self.run = code
+    self.help = help
 
 ### FUNCTIONS ###
 def display():
@@ -19,124 +25,11 @@ def display():
 
 def get_input():
   args = input("\n> ").split(" ")
-  #if args: 
-  #  args = args.sp
-  #  print(args)
   command = args.pop(0)
-  #else: return get_input()
 
-  if command == "help":
-    print(HELP)
-    get_input()
+  function, _ = find_command(command)
+  function(args)
   
-  elif command == "tutorial":
-    print(TUTORIAL)
-    input("")
-    display()
-
-  elif command == "rename":
-    if len(args) != 2:
-      print("please provide 2 arguments")
-    else:
-      password = find_password(args[0])
-      if password == "Not Found":
-        print("no password found with name:", args[0])
-      else:
-        if find_password(args[1]) != "Not Found":
-          print("password already exists with name:", args[1])
-        else:
-          password.name = args[1]
-          return display()
-    get_input()
-
-  elif command == "refresh":
-    if len(args) != 1:
-      print("please provide 1 argument")
-    else:
-      password = find_password(args[0])
-      if password == "Not Found":
-        print("no password found with name:", args[0])
-      else:
-        password.refresh()
-        display()
-    get_input()
-
-  elif command == "new":
-    new_pass = Password()
-    try:
-      if len(args) > 0:
-        new_pass.change_name(args.pop(0))
-        if len(args) > 0:
-          new_pass.change_type(args.pop(0))
-          if len(args) > 0:
-            new_pass.change_crop(args.pop(0))
-            if len(args) > 0:
-              new_pass.suffix = " ".join(args)
-    except UserWarning as e:
-      print("Error creating password:")
-      print(e)
-      new_pass.delete()
-      return get_input()
-    passwords.append(new_pass)
-    display()
-  
-  elif command == "custom":
-    find_password(args[0])
-    password = find_password(args[0])
-    if password == "Not Found":
-      print("no password found with name:", args[0])
-      get_input()
-    else:
-      password.custom = args[1]
-      display()
-
-  elif command == "settings":
-    if not len(args) < 2:
-      print("please provide at least 2 arguments (name & type)")
-      get_input()
-    else:
-      password = find_password(args[0])
-      if password == "Not Found":
-        print("Couldn't find password: ", args[0])
-        return get_input()
-      try:
-        password.change_type(args[1])
-        if len(args) > 3:
-          password.change_crop(args[2])
-          if len(args) > 4:
-            password.suffix = " ".join(args[3:])
-      except UserWarning as e:
-        print("Error changing settings:")
-        print(e)
-        return get_input()
-      display()
-  
-  elif command == "import":
-    if os.path.exists(filename):
-      try:
-        import_settings(args[0])
-        display()
-      except Exception as e:
-        print("Encountered Error:", e)
-        get_input()
-    else:
-      print("No file exists at", filename)
-      get_input()
-  
-  elif command == "suffix":
-    name = args.pop(0)
-    password = find_password(name)
-    if password == "Not Found":
-      print("no password found with name:", name)
-      get_input()
-    else:
-      password.suffix = " ".join(args)
-      display()
-    
-  else:
-    print("Unknown command:", command)
-    get_input()
-
 def save_settings():
   with open(filename, mode='wb') as file:
     pickle.dump(passwords, file)
@@ -152,7 +45,139 @@ def import_settings(filename):
     passwords = pickle.load(file)
   import_passwords(passwords)
     
-  
+### COMMANDS ###
+def find_command(name):
+  for (cmd, help) in commands:
+    if cmd.__name__ == name:
+      return cmd, help
+  else:
+    print("Unknown command:", name)
+    get_input()
+
+def help(args):
+  if len(args) == 0:
+    # show general help
+    print(HELP)
+  else:
+    # show help on specific command
+    _, help = find_command(args[0])
+    print(help)
+  get_input()
+
+def tutorial(args):
+  print(TUTORIAL)
+  input("")
+  display()
+
+def rename(args):
+  if len(args) != 2:
+    print("please provide 2 arguments")
+  else:
+    password = find_password(args[0])
+    if password == "Not Found":
+      print("no password found with name:", args[0])
+    else:
+      if find_password(args[1]) != "Not Found":
+        print("password already exists with name:", args[1])
+      else:
+        password.name = args[1]
+        return display()
+  get_input()
+
+def refresh(args):
+  if len(args) != 1:
+    print("please provide 1 argument")
+  else:
+    password = find_password(args[0])
+    if password == "Not Found":
+      print("no password found with name:", args[0])
+    else:
+      password.refresh()
+      display()
+  get_input()
+
+def new(args):
+  new_pass = Password()
+  try:
+    if len(args) > 0:
+      new_pass.change_name(args.pop(0))
+      if len(args) > 0:
+        new_pass.change_type(args.pop(0))
+        if len(args) > 0:
+          new_pass.change_crop(args.pop(0))
+          if len(args) > 0:
+            new_pass.suffix = " ".join(args)
+  except UserWarning as e:
+    print("Error creating password:")
+    print(e)
+    new_pass.delete()
+    return get_input()
+  passwords.append(new_pass)
+  display()
+
+def custom(args):
+  find_password(args[0])
+  password = find_password(args[0])
+  if password == "Not Found":
+    print("no password found with name:", args[0])
+    get_input()
+  else:
+    password.custom = " ".join(args[1:])
+    display()
+
+def settings(args):
+  if len(args) < 2:
+    print("please provide at least 2 arguments (name & type)")
+    get_input()
+  else:
+    password = find_password(args[0])
+    if password == "Not Found":
+      print("Couldn't find password: ", args[0])
+      return get_input()
+    try:
+      password.change_type(args[1])
+      if len(args) > 2:
+        password.change_crop(args[2])
+        if len(args) > 3:
+          password.suffix = " ".join(args[3:])
+    except UserWarning as e:
+      print("Error changing settings:")
+      print(e)
+      return get_input()
+    display()
+
+def load(args):
+  if os.path.exists(filename):
+    try:
+      import_settings(args[0])
+      display()
+    except Exception as e:
+      print("Encountered Error:", e)
+      get_input()
+  else:
+    print("No file exists at", filename)
+    get_input()
+
+def suffix(args):
+  name = args.pop(0)
+  password = find_password(name)
+  if password == "Not Found":
+    print("no password found with name:", name)
+    get_input()
+  else:
+    password.suffix = " ".join(args)
+    display()
+
+commands = [[help, "Prints a list of commands.\nUsage: help"],
+ [tutorial, "Prints depth explanation on how to use this software.\nUsage: tutorial"], 
+ [rename, "Changes the name associated with a password. Note that names cannot contain spaces.\nUsage: rename <current-name> <new-name>"], 
+ [refresh, "'Refreshes' a password, regenerates a password using the same settings and a new hash.\nUsage: refresh <password-name>"], 
+ [new, "Creates a new password, can specify any number of settings or leave blank for completely default.\nUsage: new [name] [type] [crop-length] [suffix ...]"],   
+ [custom, "Sets a password text to any string. Undo with refresh command.\nUsage: custom <password-name> <password text ...>"], 
+ [settings, "Set the settings used to generate a password.\nUsage: settings <password-name> <type> [crop-length] [suffix ...]"],   
+ [load, "Load a .pypass save file generated with the same masterpass.\nUsage: load <path-to-file>"],   
+ [suffix, "Append specified text to the end of a generated password.\nUsage: suffix <password-name> <suffix text ...>"]]
+
 ### PROCEDURAL CODE ###
 if __name__ == "__main__":
   # get master password
