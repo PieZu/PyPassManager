@@ -168,6 +168,24 @@ def suffix(args):
     password.suffix = " ".join(args)
     display()
 
+def setmaster(args):
+  # save generated passwords as custom (as they generate differently with diff masterpass)
+  for password in passwords:
+    password.custom = password.__repr__()
+  
+  # generate new master hash
+  masterpass = str.encode(" ".join(args))
+  masterpass = hashlib.pbkdf2_hmac('sha512', masterpass, SALT, 10000)
+  set_masterpass(masterpass)
+
+  # change save file to mash new hash
+  global filename
+  filename = f"{masterpass.hex()[:3]}_passwords.pypass"
+  
+  os.system('clear') # wipe the console
+  print("LOADING with hash", masterpass.hex())
+  display()
+
 commands = [[help, "Prints a list of commands.\nUsage: help"],
  [tutorial, "Prints depth explanation on how to use this software.\nUsage: tutorial"], 
  [rename, "Changes the name associated with a password. Note that names cannot contain spaces.\nUsage: rename <current-name> <new-name>"], 
@@ -176,7 +194,8 @@ commands = [[help, "Prints a list of commands.\nUsage: help"],
  [custom, "Sets a password text to any string. Undo with refresh command.\nUsage: custom <password-name> <password text ...>"], 
  [settings, "Set the settings used to generate a password.\nUsage: settings <password-name> <type> [crop-length] [suffix ...]"],   
  [load, "Load a .pypass save file generated with the same masterpass.\nUsage: load <path-to-file>"],   
- [suffix, "Append specified text to the end of a generated password.\nUsage: suffix <password-name> <suffix text ...>"]]
+ [suffix, "Append specified text to the end of a generated password.\nUsage: suffix <password-name> <suffix text ...>"],
+ [setmaster, "Change master password (the one you enter at program launch) and load all saved settings into it. (not recommended). Usage: setmaster <new master password ...>"]]
 
 ### PROCEDURAL CODE ###
 if __name__ == "__main__":

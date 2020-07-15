@@ -10,7 +10,7 @@ settings	Changes the hash generation settings on a password
 suffix      Appends custom string at end of password
 new	    	Creates a new password
 import		Import settings from a file
-masterpass	Change to a different master password
+setmaster	Change to a different master password
 tutorial 	Display setup walkthrough"""
 
 TUTORIAL = """Welcome to PyPassManager!
