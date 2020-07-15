@@ -111,7 +111,19 @@ def get_input():
         print(e)
         return get_input()
       display()
-
+  
+  elif command == "import":
+    if os.path.exists(filename):
+      try:
+        import_settings(args[0])
+        display()
+      except Exception as e:
+        print("Encountered Error:", e)
+        get_input()
+    else:
+      print("No file exists at", filename)
+      get_input()
+    
   else:
     print("Unknown command:", command)
     get_input()
@@ -125,6 +137,13 @@ def generate_default():
   for i in range(3):
     passwords.append(Password())
 
+def import_settings(filename):
+  global passwords
+  with open(filename, mode='rb') as file:
+    passwords = pickle.load(file)
+  import_passwords(passwords)
+    
+  
 ### PROCEDURAL CODE ###
 if __name__ == "__main__":
   # get master password
@@ -141,20 +160,21 @@ if __name__ == "__main__":
   print("LOADING with hash", masterpass.hex())
 
   # load password class
-  from password_class import set_masterpass, Password, find_password, passwords
+  from password_class import Password, find_password, passwords, set_masterpass, import_passwords
   set_masterpass(masterpass)
 
   # check for saved settings
   if os.path.exists(filename):
+    print("Loading settings from", filename)
     try:
-      print("Loading settings from", filename)
-      with open(filename, mode='rb') as file:
-        passwords.extend( pickle.load(file) )
+      import_settings(filename)
     except Exception as e:
       print("Something went wrong, defaulting back.. Error:", e)
       # dont override settings
       filename = "NEW"+filename 
       generate_default()
   else:
+    print("No settings file detected, defaulting...")
     generate_default()
+
   display()

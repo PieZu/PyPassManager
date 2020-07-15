@@ -14,6 +14,8 @@ masterpass = ""
 max_iterations = 0
 passwords = []
 
+def import_passwords(list):
+  passwords = list
 
 def set_masterpass(hash):
   global masterpass
