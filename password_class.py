@@ -125,4 +125,8 @@ class Password:
   
   def __getstate__(self):
     # don't pickle the hash representation - even if the save file encryption is broken it wont reveal the passwords (unless they're custom) 
-    return [self.iteration, self.type, self.name, self.custom]
+    return (self.iteration, self.type, self.name, self.custom, self.crop_length)
+  
+  def __setstate__(self, state):
+    (self.iteration, self.type, self.name, self.custom, self.crop_length) = state
+    self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, SALT, self.iteration)

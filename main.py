@@ -117,11 +117,14 @@ def get_input():
     get_input()
 
 def save_settings():
-  filename = f"{masterpass.hex()[:3]}_passwords.pypass"
-
   with open(filename, mode='wb') as file:
     pickle.dump(passwords, file)
   
+def generate_default():
+  global passwords
+  for i in range(3):
+    passwords.append(Password())
+
 ### PROCEDURAL CODE ###
 if __name__ == "__main__":
   # get master password
@@ -132,17 +135,26 @@ if __name__ == "__main__":
 
   # turn plaintext password to hash, unreversable
   masterpass = hashlib.pbkdf2_hmac('sha512', masterpass, SALT, 10000)
+  filename = f"{masterpass.hex()[:3]}_passwords.pypass"
 
   os.system('clear') # wipe the console
   print("LOADING with hash", masterpass.hex())
-  
+
   # load password class
   from password_class import set_masterpass, Password, find_password, passwords
   set_masterpass(masterpass)
 
-  # generate default passwords
-  
-  for i in range(3):
-    passwords.append(Password())
-
+  # check for saved settings
+  if os.path.exists(filename):
+    try:
+      print("Loading settings from", filename)
+      with open(filename, mode='rb') as file:
+        passwords.extend( pickle.load(file) )
+    except Exception as e:
+      print("Something went wrong, defaulting back.. Error:", e)
+      # dont override settings
+      filename = "NEW"+filename 
+      generate_default()
+  else:
+    generate_default()
   display()
