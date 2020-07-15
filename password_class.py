@@ -42,11 +42,8 @@ def find_password(name, error_correct=True):
 ### CLASSES ###
 class Password:
   def __init__(self, iteration="max", type=DEFAULT_TYPE, crop=False, name="__default"):
-    global max_iterations
-    print(max_iterations)
-    print(name)
-    print(passwords)
     # by default the password will start off with the next iteration after the max (.refresh will bring it up by 1). For some reason setting this directly in the parameter definition doesn't work when you change max_iterations dynamically. Weird.
+    global max_iterations
     if iteration == "max": 
       iteration = max_iterations
     if name == "__default": # same thing with name wont work directly in the parameter
