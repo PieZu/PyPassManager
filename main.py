@@ -3,6 +3,7 @@ import os
 import hashlib
 import pickle
 import stringdist
+from mnemonicode import mnformat
 
 ### set constants ###
 from constants import *
@@ -45,7 +46,7 @@ def import_settings(filename):
   with open(filename, mode='rb') as file:
     passwords = pickle.load(file)
   import_passwords(passwords)
-    
+
 ### COMMANDS ###
 def find_command(name):
   for (cmd, help) in commands:
@@ -78,7 +79,7 @@ def rename(args):
     if password == "Not Found":
       print("no password found with name:", args[0])
     else:
-      if find_password(args[1]) != "Not Found":
+      if find_password(args[1], error_correct=False) != "Not Found":
         print("password already exists with name:", args[1])
       else:
         password.name = args[1]
@@ -201,6 +202,7 @@ commands = [[help, "Prints a list of commands.\nUsage: help"],
 ### PROCEDURAL CODE ###
 if __name__ == "__main__":
   # get master password
+  print("WARNING: Make sure this is unguessable! Recommend a bunch of random words, e.g.:", mnformat(os.urandom(8), word_separator=" ", group_separator=" "))
   masterpass = input("Enter your master password:\n")
 
   # convert into bytes so that it can be hashed

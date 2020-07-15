@@ -24,25 +24,28 @@ def set_masterpass(hash):
   global masterpass
   masterpass = hash
 
-def find_password(name):
+def find_password(name, error_correct=True):
   exact_match = list(filter(lambda x: x.name == name, passwords))
   if len(exact_match) != 0:
     # exact match(es) found, return it
-    return exact_match[0] 
+    return exact_match[0]
   
-  else:
+  elif error_correct:
     # no exact match, check if any could've been typo'd
     for i in range(MAX_EDIT_DISTANCE):
       result = list(filter(lambda x: stringdist.rdlevenshtein(x.name, name) <= i+1, passwords))
       if len(result) == 1: # if theres exactly one (no ambiguity) return it
         return result[0]
-    else:
-      return "Not Found"
+  
+  return "Not Found"
 
 ### CLASSES ###
 class Password:
   def __init__(self, iteration="max", type=DEFAULT_TYPE, crop=False, name="__default"):
-    
+    global max_iterations
+    print(max_iterations)
+    print(name)
+    print(passwords)
     # by default the password will start off with the next iteration after the max (.refresh will bring it up by 1). For some reason setting this directly in the parameter definition doesn't work when you change max_iterations dynamically. Weird.
     if iteration == "max": 
       iteration = max_iterations
@@ -62,7 +65,7 @@ class Password:
     #return self
   
   def change_name(self, name):
-    if find_password(name) == "Not Found":
+    if find_password(name, error_correct=False) == "Not Found":
       self.name = name
     else:
       raise UserWarning("Duplicate name:", name)

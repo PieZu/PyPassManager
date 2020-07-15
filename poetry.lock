@@ -1,5 +1,13 @@
 [[package]]
 category = "main"
+description = "A library for encoding binary data as a sequence of english words"
+name = "mnemonicode"
+optional = false
+python-versions = "*"
+version = "1.4.5"
+
+[[package]]
+category = "main"
 description = "This package provides the stringdist module, which includes several functions for calculating string distances. Under the hood, a C extension module is preferentially used for optimal performance, with an automatic fallback to a Python implementation."
 name = "stringdist"
 optional = false
@@ -7,10 +15,13 @@ python-versions = "*"
 version = "1.0.9"
 
 [metadata]
-content-hash = "f55a5dc4d693d45607eaf32e5afa79808ee0244c1e92d7a8c872b2c49101890f"
+content-hash = "eac80b8825ad5d7dc76ce976e1e797a9cc7761458144029734a1cce91895c18c"
 python-versions = "^3.8"
 
 [metadata.files]
+mnemonicode = [
+    {file = "mnemonicode-1.4.5.tar.gz", hash = "sha256:6ef6b4489bb6d5acce510b73e9a05e4ca0305f29d81265037cfa63c2be6c3fda"},
+]
 stringdist = [
     {file = "StringDist-1.0.9.tar.gz", hash = "sha256:91e6d4a348223db094d029e7e3de9ce89c561738047555dfad60ff5ccb7a5b74"},
 ]
