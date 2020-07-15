@@ -4,6 +4,7 @@ import hashlib
 import pickle
 import stringdist
 from mnemonicode import mnformat
+from crypto import encrypt, decrypt
 
 ### set constants ###
 from constants import *
@@ -33,8 +34,10 @@ def get_input():
   function(args)
   
 def save_settings():
+  raw_data = pickle.dumps(passwords)
+  data = encrypt(raw_data, masterpass)
   with open(filename, mode='wb') as file:
-    pickle.dump(passwords, file)
+    file.write(data)
   
 def generate_default():
   global passwords
@@ -44,7 +47,8 @@ def generate_default():
 def import_settings(filename):
   global passwords
   with open(filename, mode='rb') as file:
-    passwords = pickle.load(file)
+    data = decrypt(file.read(), masterpass)
+  passwords = pickle.loads(data)
   import_passwords(passwords)
 
 ### COMMANDS ###
@@ -176,6 +180,7 @@ def setmaster(args):
     password.custom = password.__repr__()
   
   # generate new master hash
+  global masterpass
   masterpass = str.encode(" ".join(args))
   masterpass = hashlib.pbkdf2_hmac('sha512', masterpass, SALT, 10000)
   set_masterpass(masterpass)
