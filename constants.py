@@ -7,7 +7,8 @@ refresh		Refreshes a password to a new secure hash
 rename		Changes the name attached to a password
 custom		Sets a password to a custom string
 settings	Changes the hash generation settings on a password
-new		Creates a new password
+suffix    Appends custom string at end of password
+new	    	Creates a new password
 import		Import settings from a file
 masterpass	Change to a different master password
 tutorial 	Display setup walkthrough"""
@@ -45,12 +46,19 @@ Base64 - Will convert to a string of numbers, lower&uppercase letters, and + and
 Hexdec - Will instead convert into a string of numbers and the lowercase letters abcdef
 Alphbt - Will convert to a string of just letters, upper&lowercase
 Deciml - Will convert to a string of just numbers
-Additionally, you can trim the password to a certain number of characters, just put the length as a number in the third part of the settings command
+Additionally, you can trim the password to a certain number of characters, just put the length as a number in the third part of the settings command (0 = no trim)
 e.g.
 > settings E-Mail Alphbt 16
 > settings Scratch Deciml 1
 > settings Scratch Base64
 > settings YouTube Hexadecimal 50
+
+If these customisation options don't help, there's one more option, the suffix command
+> suffix YouTube !#$012aA
+this will add whatever text you provide (including spaces) to the end of the generated password. This suffix text is stored in the same way as a custom command; if you want to be as safe as possible keep its use to a minimum (only to bypass restrictions)
+You can also set the suffix in the fourth option of the settings and/or new command
+> settings Scratch Base64 0 !!0aA
+> new Phone Deciml 4  (pin)
 
 Whenever you make any change it will be automatically saved to a file named "DO_NOT_DELETE_(passwords_XXX)" in the same directory as PyPassManager.py, where the XXX represent the first 3 letters of a hash of your master password.
 this is also where the tool will look to find saved settings. You can also load alternative settings using the import command, followed by the filepath.

@@ -43,6 +43,7 @@ class Password:
     self.change_crop(crop)
     self.change_name(name)
     self.iteration = iteration
+    self.suffix = None
 
     # generate initial state
     self.refresh()
@@ -101,6 +102,8 @@ class Password:
       if self.crop_length:
         result = result[:self.crop_length]
       
+      if self.suffix:
+        result += self.suffix
       return result
   
   def as_hex(self):
@@ -127,8 +130,8 @@ class Password:
   
   def __getstate__(self):
     # don't pickle the hash representation - even if the save file encryption is broken it wont reveal the passwords (unless they're custom) 
-    return (self.iteration, self.type, self.name, self.custom, self.crop_length)
+    return (self.iteration, self.type, self.name, self.custom, self.crop_length, self.suffix)
   
   def __setstate__(self, state):
-    (self.iteration, self.type, self.name, self.custom, self.crop_length) = state
+    (self.iteration, self.type, self.name, self.custom, self.crop_length, self.suffix) = state
     self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, SALT, self.iteration)

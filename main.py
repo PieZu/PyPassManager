@@ -62,26 +62,23 @@ def get_input():
     get_input()
 
   elif command == "new":
-    if len(args) > 3: 
-      print("please provide fewer than 4 arguments")
-      print("names cannot contain spaces")
-      get_input()
-    else:
-      new_pass = Password()
-      try:
+    new_pass = Password()
+    try:
+      if len(args) > 0:
+        new_pass.change_name(args.pop(0))
         if len(args) > 0:
-          new_pass.change_name(args[0])
-          if len(args) > 1:
-            new_pass.change_type(args[1])
-            if len(args) > 2:
-              new_pass.change_type(args[2])
-      except UserWarning as e:
-        print("Error creating password:")
-        print(e)
-        new_pass.delete()
-        return get_input()
-      passwords.append(new_pass)
-      display()
+          new_pass.change_type(args.pop(0))
+          if len(args) > 0:
+            new_pass.change_crop(args.pop(0))
+            if len(args) > 0:
+              new_pass.suffix = " ".join(args)
+    except UserWarning as e:
+      print("Error creating password:")
+      print(e)
+      new_pass.delete()
+      return get_input()
+    passwords.append(new_pass)
+    display()
   
   elif command == "custom":
     find_password(args[0])
@@ -94,8 +91,8 @@ def get_input():
       display()
 
   elif command == "settings":
-    if not (len(args) == 2 or len(args) == 3): 
-      print("please provide 2 or 3 arguments")
+    if not len(args) < 2:
+      print("please provide at least 2 arguments (name & type)")
       get_input()
     else:
       password = find_password(args[0])
@@ -104,8 +101,10 @@ def get_input():
         return get_input()
       try:
         password.change_type(args[1])
-        if len(args) == 3:
+        if len(args) > 3:
           password.change_crop(args[2])
+          if len(args) > 4:
+            password.suffix = " ".join(args[3:])
       except UserWarning as e:
         print("Error changing settings:")
         print(e)
@@ -123,6 +122,16 @@ def get_input():
     else:
       print("No file exists at", filename)
       get_input()
+  
+  elif command == "suffix":
+    name = args.pop(0)
+    password = find_password(name)
+    if password == "Not Found":
+      print("no password found with name:", name)
+      get_input()
+    else:
+      password.suffix = " ".join(args)
+      display()
     
   else:
     print("Unknown command:", command)
