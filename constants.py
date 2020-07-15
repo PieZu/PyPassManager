@@ -1,3 +1,5 @@
+MAX_EDIT_DISTANCE = 2 # to account for typos in command names. restricted Damerau–Levenshtein distance
+
 SALT = b"PyPassSalt73871" # unique salt to counteract lookup tables
 
 HELP = """For a simple walkthrough to set up easily, type 'tutorial'

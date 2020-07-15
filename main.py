@@ -2,6 +2,7 @@
 import os
 import hashlib
 import pickle
+import stringdist
 
 ### set constants ###
 from constants import *
@@ -48,7 +49,7 @@ def import_settings(filename):
 ### COMMANDS ###
 def find_command(name):
   for (cmd, help) in commands:
-    if cmd.__name__ == name:
+    if stringdist.rdlevenshtein(cmd.__name__, name) <= MAX_EDIT_DISTANCE:
       return cmd, help
   else:
     print("Unknown command:", name)

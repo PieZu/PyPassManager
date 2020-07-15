@@ -1,8 +1,9 @@
 import hashlib
 import base64
 import pickle
+import stringdist
 
-from constants import SALT
+from constants import SALT, MAX_EDIT_DISTANCE
 
 PASSWORD_TYPES = ["hex", "Base64", "Deciml"]
 DEFAULT_TYPE = "hex"
@@ -24,11 +25,19 @@ def set_masterpass(hash):
   masterpass = hash
 
 def find_password(name):
-  result = list(filter(lambda x: x.name == name, passwords))
-  if len(result) == 0:
-    return "Not Found"
+  exact_match = list(filter(lambda x: x.name == name, passwords))
+  if len(exact_match) != 0:
+    # exact match(es) found, return it
+    return exact_match[0] 
+  
   else:
-    return result[0]
+    # no exact match, check if any could've been typo'd
+    for i in range(MAX_EDIT_DISTANCE):
+      result = list(filter(lambda x: stringdist.rdlevenshtein(x.name, name) <= i+1, passwords))
+      if len(result) == 1: # if theres exactly one (no ambiguity) return it
+        return result[0]
+    else:
+      return "Not Found"
 
 ### CLASSES ###
 class Password:

@@ -1,0 +1,16 @@
+[[package]]
+category = "main"
+description = "This package provides the stringdist module, which includes several functions for calculating string distances. Under the hood, a C extension module is preferentially used for optimal performance, with an automatic fallback to a Python implementation."
+name = "stringdist"
+optional = false
+python-versions = "*"
+version = "1.0.9"
+
+[metadata]
+content-hash = "f55a5dc4d693d45607eaf32e5afa79808ee0244c1e92d7a8c872b2c49101890f"
+python-versions = "^3.8"
+
+[metadata.files]
+stringdist = [
+    {file = "StringDist-1.0.9.tar.gz", hash = "sha256:91e6d4a348223db094d029e7e3de9ce89c561738047555dfad60ff5ccb7a5b74"},
+]
