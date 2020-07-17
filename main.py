@@ -8,6 +8,7 @@ from crypto import encrypt, decrypt
 
 ### set constants ###
 from constants import *
+
 ### CLASSES ###
 class Command:
   def __init__(self, name, code, help):
@@ -214,7 +215,7 @@ if __name__ == "__main__":
   masterpass = str.encode(masterpass)
 
   # turn plaintext password to hash, unreversable
-  masterpass = hashlib.pbkdf2_hmac('sha512', masterpass, SALT, 10000)
+  masterpass = hashlib.pbkdf2_hmac('sha512', masterpass, INITIAL_SALT, 10000)
   filename = f"{masterpass.hex()[:3]}_passwords.pypass"
 
   os.system('clear') # wipe the console

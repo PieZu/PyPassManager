@@ -22,7 +22,7 @@ def encrypt(raw, key):
 
   return iv+cipher.encrypt(pad(raw)) # store iv so it can be decoded
 
-def decrypt(data, raw):
+def decrypt(data, key):
   "Decrypt bytes using AES CBC, extracting the InitialVector from the start"
   iv, data = data[:AES.block_size], data[AES.block_size:] # extract the iv from the start
   key = key[:32] # key must be 32 bytes, masterpass hash is 64 bytes

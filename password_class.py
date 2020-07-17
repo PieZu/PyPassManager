@@ -3,7 +3,7 @@ import base64
 import pickle
 import stringdist
 
-from constants import SALT, MAX_EDIT_DISTANCE
+from constants import MAX_EDIT_DISTANCE
 
 PASSWORD_TYPES = ["hex", "Base64", "Deciml"]
 DEFAULT_TYPE = "hex"
@@ -92,7 +92,7 @@ class Password:
     self.custom = False
 
     # generate the passwords hash / source  
-    self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, SALT, self.iteration)
+    self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, masterpass[-16:], self.iteration)
     
   def __repr__(self):
     # generate password plaintext with current settings
@@ -142,7 +142,7 @@ class Password:
   
   def __setstate__(self, state):
     (self.iteration, self.type, self.name, self.custom, self.crop_length, self.suffix) = state
-    self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, SALT, self.iteration)
+    self.hash = hashlib.pbkdf2_hmac('sha256', masterpass, masterpass[-16:], self.iteration)
 
     global max_iterations
     if self.iteration > max_iterations:
