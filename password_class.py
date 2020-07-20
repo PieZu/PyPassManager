@@ -3,7 +3,7 @@ import base64
 import pickle
 import stringdist
 
-from constants import MAX_EDIT_DISTANCE
+MAX_EDIT_DISTANCE = 2
 
 PASSWORD_TYPES = ["hex", "Base64", "Deciml"]
 DEFAULT_TYPE = "hex"
