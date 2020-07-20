@@ -11,8 +11,8 @@ def pad(txt):
  
 def unpad(txt):
   "To get just the encrypted data back, we need to undo any meaningless padding we added to satisfy length requirements"
-  padding_length = ord(txt[-1]) # length is stored as the character code of the padding
-  return txt[:padding_length]
+  padding_length = txt[-1] # length is stored as the character code of the padding
+  return txt[:-padding_length]
 
 def encrypt(raw, key):
   "Encrypt bytes using AES CBC, and a random InitialVector that is stored at the start"
