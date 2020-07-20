@@ -23,10 +23,13 @@ python-versions = "*"
 version = "1.0.9"
 
 [metadata]
-content-hash = "ab9b61695d3330aa8a01efc75160dbcca51cdc960d5b7de045b6e124f5e47b9a"
+content-hash = "c8acd332a462a73f7d65c74346e3692cf98c11129a7ccb45e89b90bf400f844f"
 python-versions = "^3.8"
 
 [metadata.files]
+constants = [
+    {file = "constants-0.6.0.tar.gz", hash = "sha256:0b65d6927b66bfbefdfbca9ef4d66645d266e7ae148ff91659b76f4c7f9bf9b1"},
+]
 mnemonicode = [
     {file = "mnemonicode-1.4.5.tar.gz", hash = "sha256:6ef6b4489bb6d5acce510b73e9a05e4ca0305f29d81265037cfa63c2be6c3fda"},
 ]

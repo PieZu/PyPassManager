@@ -78,6 +78,8 @@ INITIAL_SALT = b"PyPassSalt73871" # unique salt to counteract lookup tables
 MAX_EDIT_DISTANCE = 2 # to account for typos in command names. restricted Damerau–Levenshtein distance
 
 ### CLASSES ###
+from password_class import Password, find_password, passwords, set_masterpass, import_passwords
+
 class Command:
   def __init__(self, name, code, help):
     self.name = name
@@ -118,7 +120,7 @@ def import_settings(filename):
   with open(filename, mode='rb') as file:
     data = decrypt(file.read(), masterpass)
   passwords = pickle.loads(data)
-  import_passwords(passwords)
+  import_passwords(passwords) # set passwords variable in password_class.py module
 
 ### COMMANDS ###
 def find_command(name):
@@ -141,7 +143,7 @@ def help(args):
 
 def tutorial(args):
   print(TUTORIAL)
-  input("")
+  input("") # wait for enter
   display()
 
 def rename(args):
@@ -290,7 +292,6 @@ if __name__ == "__main__":
   print("LOADING with hash", masterpass.hex())
 
   # load password class
-  from password_class import Password, find_password, passwords, set_masterpass, import_passwords
   set_masterpass(masterpass)
 
   # check for saved settings
