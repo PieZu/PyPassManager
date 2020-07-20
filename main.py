@@ -80,6 +80,7 @@ MAX_EDIT_DISTANCE = 2 # to account for typos in command names. restricted Damera
 ### CLASSES ###
 from password_class import Password, find_password, passwords, set_masterpass, import_passwords
 
+# pointless wrapper that makes the command notation simpler / more readable and is more easily extensible.
 class Command:
   def __init__(self, name, code, help):
     self.name = name
@@ -88,7 +89,7 @@ class Command:
 
 ### FUNCTIONS ###
 def display():
-  # display is called everytime the settings are changed. so first, we save
+  "display is called everytime the settings are changed. It will first save_settings, then print them out in a human readable format, then get_input. This function takes no arguments and is recursive, it will never return."
   save_settings()
 
   print(" --- PyPassManager --- ")
@@ -98,6 +99,7 @@ def display():
   get_input()
 
 def get_input():
+  "get_input is called everytime a new user input is wanted (after display, or after an input failed). It takes no arguments and never returns, it calls the inputted command."
   args = input("\n> ").split(" ")
   command = args.pop(0)
 
@@ -105,17 +107,20 @@ def get_input():
   function(args)
   
 def save_settings():
+  "save_settings is called whenever the passwords list is modified. It pickles passwords, encrypt()s it, then writes the filename variable. No arguments nor returns."
   raw_data = pickle.dumps(passwords)
   data = encrypt(raw_data, masterpass)
   with open(filename, mode='wb') as file:
     file.write(data)
   
 def generate_default():
+  "generate_default adds three default Password objects to the passwords list. No arguments nor returns."
   global passwords
   for i in range(3):
     passwords.append(Password())
 
 def import_settings(filename):
+  "import_settings loads a file saved with the same masterpass, reads decryps unpickles and sets to the passwords list. One string argument of a filepath/name. No returns."
   global passwords
   with open(filename, mode='rb') as file:
     data = decrypt(file.read(), masterpass)
@@ -124,6 +129,7 @@ def import_settings(filename):
 
 ### COMMANDS ###
 def find_command(name):
+  "find_command matches the input string to the closest (within rdl distance of MAX_EDIT_DISTANCE) command name specified in the commands list. It returns the command along with its associated help. If no command was found it will print an error and call get_input"
   for (cmd, help) in commands:
     if stringdist.rdlevenshtein(cmd.__name__, name) <= MAX_EDIT_DISTANCE:
       return cmd, help
@@ -132,6 +138,7 @@ def find_command(name):
     get_input()
 
 def help(args):
+  "help is a user command. It takes one list input that can either be empty or contain one string. It will print help text; general or command specific. Never returns, recursively calls get_input."
   if len(args) == 0:
     # show general help
     print(HELP)
@@ -142,11 +149,13 @@ def help(args):
   get_input()
 
 def tutorial(args):
+  "tutorial is a user command. It prints the TUTORIAL constant, then waits for the enter key, then calls display. arguments are ignored, never returns."
   print(TUTORIAL)
   input("") # wait for enter
   display()
 
 def rename(args):
+  "rename is a user command. Takes a list with two string arguments. Attempts to rename a password, if successful calls display, if unsuccesful prints error and calls get_input"
   if len(args) != 2:
     print("please provide 2 arguments")
   else:
@@ -162,6 +171,7 @@ def rename(args):
   get_input()
 
 def refresh(args):
+  "refresh is a user comand. Takes a list with one string argument of a password name. Calls the refresh method of that password. If error occurs, prints & calls get_input"
   if len(args) != 1:
     print("please provide 1 argument")
   else:
@@ -174,6 +184,7 @@ def refresh(args):
   get_input()
 
 def new(args):
+  "new is a user command. Takes a list with any number of string elements. Creates a new Password object with specified settings (name, type, crop_length, suffix + ). Adds object to passwords list and calls display. If error, prints&calls get_input."
   new_pass = Password()
   try:
     if len(args) > 0:
@@ -193,6 +204,7 @@ def new(args):
   display()
 
 def custom(args):
+  "custom is a user command. Takes a list with at least two string elements. Changes the custom property of password. Calls display on success and get_input on error."
   find_password(args[0])
   password = find_password(args[0])
   if password == "Not Found":
@@ -203,6 +215,7 @@ def custom(args):
     display()
 
 def settings(args):
+  "settings is a user command. Takes a list of 2+ string elements. Changes various settings of a preexisting password, using the same format as the new command. Calls display on success and get_input on error."
   if len(args) < 2:
     print("please provide at least 2 arguments (name & type)")
     get_input()
@@ -224,7 +237,8 @@ def settings(args):
     display()
 
 def load(args):
-  if os.path.exists(filename):
+  "load is a user command. It takes a list of one string specifying the filename to import settings from. Calls import_settings & display, or print & get_input if error occurs."
+  if os.path.exists(args[0]):
     try:
       import_settings(args[0])
       display()
@@ -232,10 +246,11 @@ def load(args):
       print("Encountered Error:", e)
       get_input()
   else:
-    print("No file exists at", filename)
+    print("No file exists at", args[0])
     get_input()
 
 def suffix(args):
+  "suffix is a user command. It takes a list of 2+ strings. Changes the suffix property of a password object. Never returns: calls either display or get_input"
   name = args.pop(0)
   password = find_password(name)
   if password == "Not Found":
@@ -246,6 +261,7 @@ def suffix(args):
     display()
 
 def setmaster(args):
+  "setmaster is a user command. It takes a list of a string split on spaces. Will change the masterpass to the rejoined string, making all passwords custom along the way. Doesn't return; instead calls display."
   # save generated passwords as custom (as they generate differently with diff masterpass)
   for password in passwords:
     password.custom = password.__repr__()
