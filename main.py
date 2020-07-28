@@ -269,7 +269,7 @@ def setmaster(args):
   # generate new master hash
   global masterpass
   masterpass = str.encode(" ".join(args))
-  masterpass = hashlib.pbkdf2_hmac('sha512', masterpass, SALT, 10000)
+  masterpass = hashlib.pbkdf2_hmac('sha512', masterpass, INITIAL_SALT, 10000)
   set_masterpass(masterpass)
 
   # change save file to mash new hash
