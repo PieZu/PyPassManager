@@ -89,11 +89,11 @@ class Command:
 
 ### FUNCTIONS ###
 def display():
-  "display is called everytime the settings are changed. It will first save_settings, then print them out in a human readable format, then get_input. This function takes no arguments and is recursive, it will never return."
+  "display is called everytime the settings are changed. It will first save_settings, then print the generated passwords out in a human readable format (in alphabetical order), then get_input. This function takes no arguments and is recursive, it will never return."
   save_settings()
 
   print(" --- PyPassManager --- ")
-  for password in passwords:
+  for password in sorted(passwords):
     print(f"[{'!' if password.custom else password.iteration}] {password.name}: {password}")
   print("\ntype help for a list of commands")
   get_input()

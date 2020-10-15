@@ -155,3 +155,7 @@ class Password:
     global max_iterations
     if self.iteration > max_iterations:
       max_iterations = self.iteration
+  
+  def __lt__(self, other):
+    "Overwrites functionality of '<' operator. Used to make inbuilt sorting functions able to sort Password objects (by lowercase name)"
+    return self.name.lower() < other.name.lower()
